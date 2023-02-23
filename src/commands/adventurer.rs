@@ -6,6 +6,8 @@ use std::fs::File;
 use std::io::BufReader;
 use std::vec::Vec;
 
+use danjon_bot::stats::{calc_stats, get_race_stats, IvStats, Stats};
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Adventurers {
     adventurer: Vec<Adventurer>,
@@ -26,11 +28,38 @@ struct Adventurer {
 
 impl fmt::Display for Adventurer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "```\nAventurier: {}\nRace: {}\nRank: {}\nLevel: {}\nBlessures: {} ({})\nMétiers: {}\nEnergie physique: {}\n",
-            self.name, self.race, self.rank, self.level, self.health.description, self.health.state, self.jobs, self.energy.physical
-        )?;
+        match self.race {
+            Race::Jiaodan => {
+                let stats_human: Stats = calc_stats(
+                    self.iv,
+                    self.level,
+                    get_race_stats("JiaodanHumain".to_string()),
+                    None,
+                );
+                let stats_dragon: Stats = calc_stats(
+                    self.iv,
+                    self.level,
+                    get_race_stats("JiaodanDragon".to_string()),
+                    None,
+                );
+                write!(
+                    f,
+                    "```\nAventurier: {}\nRace: {}\nRank: {}\nLevel: {}\nStats Humain: {}\nStats Dragon: {}\nBlessures: {} ({})\nMétiers: {}\nEnergie physique: {}\n",
+                    self.name, self.race, self.rank, self.level, stats_human, stats_dragon, self.health.description, self.health.state, self.jobs, self.energy.physical)?;
+            }
+            _ => {
+                let stats: Stats = calc_stats(
+                    self.iv,
+                    self.level,
+                    get_race_stats(format!("{}", self.race)),
+                    None,
+                );
+                write!(
+                f,
+                "```\nAventurier: {}\nRace: {}\nRank: {}\nLevel: {}\nStats: {}\nBlessures: {} ({})\nMétiers: {}\nEnergie physique: {}\n",
+                self.name, self.race, self.rank, self.level, stats, self.health.description, self.health.state, self.jobs, self.energy.physical)?;
+            }
+        }
         match self.energy.magical.len() {
             0 => write!(f, "```"),
             _ => {
@@ -136,18 +165,11 @@ impl fmt::Display for Magic {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct IvStats {
-    force: u8,
-    resistance: u8,
-    vitesse: u8,
-    resistance_magique: u8,
-    force_magique: u8,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 enum Race {
     Jiaodan,
+    JiaodanHumain,
+    JiaodanDragon,
     Marwoeth,
     Demon,
     Elfe,
@@ -174,6 +196,7 @@ impl fmt::Display for Race {
             Race::Humain => write!(f, "Humain"),
             Race::Gwisin => write!(f, "Gwisin"),
             Race::Stens => write!(f, "Stens"),
+            _ => write!(f, "None"),
         }
     }
 }
