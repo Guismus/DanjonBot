@@ -14,13 +14,13 @@ struct Adventurers {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Adventurer {
+pub struct Adventurer {
     id: u8,
-    name: String,
-    race: Race,
+    pub name: String,
+    pub race: Race,
     rank: char,
-    level: u8,
-    iv: IvStats,
+    pub level: u8,
+    pub iv: IvStats,
     jobs: Jobs,
     energy: Energy,
     health: Health,
@@ -166,7 +166,7 @@ impl fmt::Display for Magic {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-enum Race {
+pub enum Race {
     Jiaodan,
     JiaodanHumain,
     JiaodanDragon,
@@ -185,7 +185,7 @@ enum Race {
 impl fmt::Display for Race {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Race::Jiaodan => write!(f, "Jiaodan"),
+            Race::Jiaodan => write!(f, "JiaodanHumain"),
             Race::Marwoeth => write!(f, "Marwoeth"),
             Race::Demon => write!(f, "Demon"),
             Race::Elfe => write!(f, "Elfe"),
@@ -233,6 +233,17 @@ fn get_adventurers() -> Adventurers {
     let res: Adventurers = serde_json::from_reader(reader).unwrap();
 
     res
+}
+
+pub fn get_adventurer(name: String) -> Option<Adventurer> {
+    let contents: Adventurers = get_adventurers();
+    for i in contents.adventurer {
+        if i.name == name {
+            return Some(i);
+        }
+    }
+
+    return None;
 }
 
 pub async fn read_adventurer_stat(ctx: Context, msg: Message) {

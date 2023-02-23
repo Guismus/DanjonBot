@@ -18,6 +18,7 @@ impl EventHandler for Handler {
             s if s.starts_with("?stats") => {
                 commands::adventurer::read_adventurer_stat(ctx, msg).await
             }
+            s if s.starts_with("?roll") => commands::roll::attack_roll(ctx, msg).await,
             _ => {}
         }
     }
