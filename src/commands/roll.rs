@@ -483,6 +483,5 @@ pub async fn attack_roll(ctx: Context, msg: Message) {
         .map(String::from)
         .collect();
     let attack_result: AttackResult = result_roll_attack(search_entities(command));
-    println!("Here");
     msg.channel_id.say(&ctx.http, attack_result).await;
 }

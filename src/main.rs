@@ -15,6 +15,7 @@ impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         match msg.content.clone() {
             s if s.starts_with("?ping") => commands::ping::run(ctx, msg).await,
+            s if s.starts_with("?meteo") => commands::meteo::meteo(ctx, msg).await,
             s if s.starts_with("?stats") => {
                 commands::adventurer::read_adventurer_stat(ctx, msg).await
             }
